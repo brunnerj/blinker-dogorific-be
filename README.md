@@ -1,44 +1,67 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Project submission from [James Brunner](mailto://james.jack.brunner@gmail.com) for Blinker tech assessment.
 
-## Available Scripts
+## Dog-O-Rific
 
-In the project directory, you can run:
+This is a simple `node/express` API router implementation to supply a collection
+of dog breeds to clients (e.g., the Blinker _dogorific_ front-end client) and
+allow breeds to be chosen (or unchosen) as favorites.
 
-### `yarn start`
+Dog breeds in the backend repository can be requested by the whole collection
+(`HTTP GET <server>/breeds`), or by the individual breed ID
+property (`HTTP GET <server>/breeds/<id>`).
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Breeds can be marked as a _favorite_ (`HTTP POST <server>/favorites/add`, with
+json request body of `{"breed_id": <breed id>}`), and separately queried as the whole
+collection (`HTTP GET <server>/favorites`). Breeds can also be removed
+from the favorites collection (`HTTP DELETE <server>/favorites/<id>`).
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+### Install/Run/Test
 
-### `yarn test`
+**Note: This requires [node](https://nodejs.org/en/download/) v12+ to be installed.**
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+1. Clone this repository [https://github.com/brunnerj/blinker-dogorific-be.git](https://github.com/brunnerj/blinker-dogorific-be.git).
 
-### `yarn build`
+2. Run `npm install && npm start` in the top-level repository folder.
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+3. Use an application like [Postman](https://www.postman.com) or CLI tool
+   like `curl` to make requests to the API service running at
+   [http://localhost:4000](http://localhost:4000).
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+4. Use the Blinker front-end implementation to test the API by launching
+   the front-end docker and browsing to [http://localhost:8000](http://localhost:8000).
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Ideas for Improvement
 
-### `yarn eject`
+The API satisfies the requirements for the assessment assignment, however,
+were this a real-world API , there are several areas that
+could be improved upon.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+This simple example API suffers from:
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+-   **Scalability**
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+    The API persists the collections of dog breeds and favorites in plain
+    JSON files. Reads are slow and not cached, multi-user access is not
+    supported and complex query scenarios (e.g., multi-collection joins)
+    would have to be manually coded from scratch.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+    A better approach would be to use a database (along with an
+    API with flexible data source support, see below) to persist data
+    on the backend.
 
-## Learn More
+-   **Maintainability**
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+    The API router, models and data sources are currently tightly coupled,
+    and logic and objects overlap a lot in the source modules. A better
+    approach for longer-term maintainability would be to utilize a more
+    sophisticated API framework, for example [LoopBack 4](https://loopback.io),
+    that provides for greater out-of-the-box separation of concerns as well
+    as support for various backend data sources.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+-   **Security**
+
+    Ultimately all modern APIs should use an encrypted protocol (e.g. `https`)
+    to provide for a secure data channel as well as definitive host identification.
+    A session manager and user authentication could be added to the API to
+    keep track of specific users' favorite breeds (as well as to support
+    an expanding feature set for the API).
